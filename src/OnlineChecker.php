@@ -112,7 +112,7 @@ class OnlineChecker
             $file_checker->analyze($context);
 
             if ($codebase->taint_flow_graph) {
-                $codebase->taint_flow_graph->connectSinksAndSources();
+                $codebase->taint_flow_graph->connectSinksAndSources($codebase->progress);
             }
 
             if (($settings['unused_methods'] ?? false) || strpos($file_contents, '<?php // findUnusedCode') === 0) {
