@@ -28,9 +28,6 @@ if (!phpVersion || !new RegExp(<?= json_encode(\PsalmDotOrg\OnlineChecker::SUPPO
     phpVersion = defaultPhpVersion;
 }
 
-// environment details from the latest /check response, shown at the bottom of the settings panel
-var runtimeInfo = null;
-
 var setPhpVersion = function(version) {
     phpVersion = version;
 
@@ -47,31 +44,6 @@ var setPhpVersion = function(version) {
     window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
 
     editor.performLint();
-};
-
-var redrawRuntimeInfo = function() {
-    const container = document.getElementById('runtime_info');
-
-    if (!container) {
-        return;
-    }
-
-    container.textContent = runtimeInfo
-        ? 'Psalm ' + runtimeInfo.psalm_version + ' runs on PHP ' + runtimeInfo.php_version
-            + '; your code is analysed as PHP ' + runtimeInfo.analysed_as + '. psalm.dev ' + runtimeInfo.site_version + '.'
-        : '';
-};
-
-var toggleSetting = function(key) {
-    if (key in settings) {
-        settings[key] = !settings[key];
-    } else {
-        settings[key] = true;
-    }
-
-    editor.performLint();
-
-    return false;
 };
 
 var redrawSettings = function() {
@@ -97,10 +69,7 @@ var redrawSettings = function() {
             '<div>' + input + ' <label for="' + key + '">' + settingsText[key] + '</label></div>'
         );
     });
-    settingsLines.push('<div id="runtime_info"></div>');
-
     document.getElementById('settings_panel').innerHTML = settingsLines.join('\n');
-    redrawRuntimeInfo();
 };
 
 var getLink = async function() {
@@ -195,14 +164,6 @@ var fetchAnnotations = function (code, callback, options, cm) {
             }
 
             const psalm_header = 'Psalm output (using Psalm&nbsp;' + psalm_version_html + '): <br><br>'
-
-            runtimeInfo = {
-                psalm_version: response.version,
-                analysed_as: submitData.php,
-                site_version: response.site_version || <?= json_encode(\PsalmDotOrg\OnlineChecker::SITE_VERSION) ?>,
-                php_version: response.php_version
-            };
-            redrawRuntimeInfo();
 
             if (response.results.length === 0) {
                 document.getElementById('psalm_output').innerHTML = psalm_header + 'No issues!';
